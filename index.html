@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <title>Guitar Tuner</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/style.css" rel="stylesheet">
+    <script src="js/Metronome.js"></script>
+    <script src="js/MetronomeView.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id="metronome">
+        <div id="time-signatures">
+            <label for="my-dropdown">Time signature:</label>
+            <select id="my-dropdown">
+                <option value="4/4" selected>4/4</option>
+                <option value="2/4">2/4</option>
+                <option value="3/4">3/4</option>
+                <option value="2/2">2/2</option>
+                <option value="6/8">6/8</option>
+                <option value="9/8">9/8</option>
+                <option value="12/8">12/8</option>
+            </select>
+        </div>
+        <div id="beats-per-minute">
+            <label for="my-number-input">Enter a number between 1 and 500:</label>
+            <input type="number" id="my-number-input" class="number-input" min="1" max="500" value="120" required
+                onchange="checkInput()">
+        </div>
+        <div id="beats">
+            <!--El valor de la nota debe de venir del Modelo de cshtml-->
+            <!--Ejem> <div class="circular-button" id="0">@Model.Note</div>-->
+            <div class="circular-beat" id="0">1</div>
+            <div class="circular-beat" id="1">2</div>
+            <div class="circular-beat" id="2">3</div>
+            <div class="circular-beat" id="3">4</div>
+
+        </div>
+        <div id="turn-on">
+            <button id="start-playing">Play</button>
+        </div>
+    </div>
+    <script src="js/Inputs.js"></script>
+
+</body>
+
+</html>
