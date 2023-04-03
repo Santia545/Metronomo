@@ -9,7 +9,7 @@ class Metronome {
     metronomeView = null;
     normalSound = new Audio('resources/metronome_piano.wav');
     accentSound = new Audio('resources/metronome_forte.wav');
-    intervalId;
+    intervalId=null;
     isRunning() {
         return this.running;
     }
@@ -36,6 +36,7 @@ class Metronome {
                 this.playSound();
             } else {
                 clearInterval(this.intervalId);
+                this.intervalId=null;
             }
         }, this.time);
     }
