@@ -2,6 +2,7 @@ const playBtn = document.getElementById("start-playing");
 let metronome = new Metronome();
 let metronomeView = new MetronomeView();
 metronome.setView(metronomeView);
+metronome.noteAccent = -1;
 playBtn.onclick =
     function () {
         metronome.running = !metronome.running;
@@ -24,14 +25,23 @@ dropdown.addEventListener('change', function () {
     metronome.setNotesNumber(noteNumber);
     metronome.setNoteType(noteType);
 });
+$('#my-switch').change(function () {
+    if (this.checked) {
+        metronome.setNoteAccent(0);
+        console.log("Switch is on");
+    } else {
+        metronome.setNoteAccent(-2);
+        console.log("Switch is off");
+    }
+});
 
 const numberInput = document.getElementById('my-number-input');
 function checkInput() {
     const value = parseInt(numberInput.value);
     if (isNaN(value) || value < 1 || value > 500) {
         alert("Please enter a number between 1 and 500");
-        numberInput.value="120";
-    }else{
+        numberInput.value = "120";
+    } else {
         metronome.setBpm(value);
     }
 }

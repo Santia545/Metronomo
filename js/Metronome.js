@@ -5,8 +5,11 @@ class Metronome {
     running = false;
     notesNumber = 4;
     noteType = 4;
-    noteAccent = 0;
+    noteAccent = -1;
     metronomeView = null;
+    normalSound = new Audio('resources/metronome_piano.wav');
+    accentSound = new Audio('resources/metronome_forte.wav');
+    intervalId;
     isRunning() {
         return this.running;
     }
@@ -15,47 +18,45 @@ class Metronome {
         if (this.noteType != noteType) {
             this.noteType = noteType;
             this.calculateTime();
-            this.index=-1;
+            this.index = 0;
         }
     }
 
     setNotesNumber(noteNumber) {
         this.notesNumber = noteNumber;
-        this.index=-1;
+        this.index = 0;
     }
     setView(metronomeView) {
         this.metronomeView = metronomeView;
     }
     run() {
-        const normalSound = new Audio('resources/metronome_piano.wav');
-        const accentSound = new Audio('resources/metronome_forte.wav');
-
         this.running = true;
-        const playSound = () => {
-            const noteNumber = this.index % this.notesNumber;
-            this.metronomeView.setNoteIndex(noteNumber);
-            if (noteNumber == this.noteAccent) {
-                accentSound.currentTime = 0;
-                accentSound.play();
+        this.intervalId = setInterval(() => {
+            if (this.running) {
+                this.playSound();
             } else {
-                normalSound.currentTime = 0;
-                normalSound.play();
+                clearInterval(this.intervalId);
             }
-            console.log("Time " + Date.now() + " " + this.index);
-            setTimeout(() => {
-                this.index++;
-                if (this.running) {
-                    playSound();
-                }
-            }, this.time);
-
-        };
-        setTimeout(playSound, 0);
+        }, this.time);
     }
 
+    playSound() {
+        console.log("Time " + performance.now());
+        const noteNumber = this.index % this.notesNumber;
+        metronomeView.setNoteIndex(noteNumber);
+        if (noteNumber == this.noteAccent) {
+            this.accentSound.currentTime = 0;
+            this.accentSound.play();
+        } else {
+            this.normalSound.currentTime = 0;
+            this.normalSound.play();
+        }
+        this.index++;
+    };
 
     pause() {
-        running = false;
+        this.running = false;
+        this.intervalId = null;
     }
 
     setBpm(bpm) {
@@ -75,6 +76,10 @@ class Metronome {
             this.time = Math.round(60000 / this.bpm);
         }
         console.log("new time: " + this.time);
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.run();
+        }
 
     }
 

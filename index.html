@@ -17,7 +17,7 @@
         <div id="time-signatures">
             <label for="my-dropdown">Time signature:</label>
             <select id="my-dropdown">
-                <option value="4/4" selected>4/4</option>
+                <option value="4/4" selected="">4/4</option>
                 <option value="2/4">2/4</option>
                 <option value="3/4">3/4</option>
                 <option value="2/2">2/2</option>
@@ -25,6 +25,12 @@
                 <option value="9/8">9/8</option>
                 <option value="12/8">12/8</option>
             </select>
+
+            <label class="switch">
+                <input type="checkbox" id="my-switch">
+                <span class="slider"></span>
+                <span class="label">Toggle note accent</span>
+            </label>
         </div>
         <div id="beats-per-minute">
             <label for="my-number-input">Enter a number between 1 and 500:</label>
