@@ -7,12 +7,16 @@ class Metronome {
     noteType = 4;
     noteAccent = -1;
     metronomeView = null;
-    normalSound = new Audio('resources/metronome_piano.wav');
-    accentSound = new Audio('resources/metronome_forte.wav');
-    intervalId = null;
-    lastSoundTime = null; // For profiling
-    HighestTime = 0; // For profiling
-    LowestTime = 0; // For profiling
+    audioContext = null;
+    normalBuffer = null;
+    accentBuffer = null;
+    schedulerId = null;
+    scheduleAheadTime = 0.1; // seconds
+    nextNoteTime = 0;
+    lastScheduledTime = null; // For profiling
+    maxIntervalMs = 0; // Maximum interval between scheduled sounds
+    minIntervalMs = null; // Minimum interval between scheduled sounds
+
     isRunning() {
         return this.running;
     }
@@ -32,62 +36,66 @@ class Metronome {
     setView(metronomeView) {
         this.metronomeView = metronomeView;
     }
-    run() {
+    async loadSounds() {
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const loadBuffer = async (url) => {
+            const response = await fetch(url);
+            const arrayBuffer = await response.arrayBuffer();
+            return await this.audioContext.decodeAudioData(arrayBuffer);
+        };
+        this.normalBuffer = await loadBuffer('resources/metronome_piano.wav');
+        this.accentBuffer = await loadBuffer('resources/metronome_forte.wav');
+    }
+
+    async run() {
+        if (!this.audioContext) await this.loadSounds();
         this.running = true;
         this.index = 0;
-        this.nextTick = performance.now();
-        this.tick();
+        this.nextNoteTime = this.audioContext.currentTime + 0.05;
+        this.scheduler();
     }
-    tick = () => {
+
+    scheduler = () => {
         if (!this.running) return;
-
-        const now = performance.now();
-        if (now >= this.nextTick) {
-            this.playSound(); 
-            this.nextTick += this.time;
-
-            // Ajute por retraso
-            if (now > this.nextTick + this.time) {
-                this.nextTick = now + this.time;
-            }
+        while (this.nextNoteTime < this.audioContext.currentTime + this.scheduleAheadTime) {
+            this.scheduleTick(this.index, this.nextNoteTime);
+            this.nextNoteTime += this.time / 1000;
+            this.index++;
         }
-        this.timerId = setTimeout(this.tick, 1); 
+        this.schedulerId = setTimeout(this.scheduler, 25);
     };
 
-    playSound() {
-        const now = performance.now();
-        // Profiling: measure time between sounds
-        if (this.lastSoundTime !== null) {
-            if (now - this.lastSoundTime > this.HighestTime) {
-                this.HighestTime = now - this.lastSoundTime;
-                console.log(`New highest time: ${this.HighestTime.toFixed(2)} ms`);
+    scheduleTick(noteIndex, time) {
+        // Profiling: log ms between scheduled sounds
+        if (this.lastScheduledTime !== null) {
+            const intervalMs = (time - this.lastScheduledTime) * 1000;
+            console.log(`Interval between scheduled sounds: ${intervalMs.toFixed(2)} ms`);
+            if (intervalMs > this.maxIntervalMs) {
+                this.maxIntervalMs = intervalMs;
+                console.log(`New max interval: ${this.maxIntervalMs.toFixed(2)} ms`);
             }
-            if (this.LowestTime === 0 || now - this.lastSoundTime < this.LowestTime) {
-                this.LowestTime = now - this.lastSoundTime;
-                console.log(`New lowest time: ${this.LowestTime.toFixed(2)} ms`);
+            if (this.minIntervalMs === null || intervalMs < this.minIntervalMs) {
+                this.minIntervalMs = intervalMs;
+                console.log(`New min interval: ${this.minIntervalMs.toFixed(2)} ms`);
             }
-            const interval = now - this.lastSoundTime;
-            console.log(`Interval since last sound: ${interval.toFixed(2)} ms`);
         }
-        this.lastSoundTime = now;
+        this.lastScheduledTime = time;
 
-        console.log("Time " + now);
-        const noteNumber = this.index % this.notesNumber;
-        metronomeView.setNoteIndex(noteNumber);
-        if (noteNumber == this.noteAccent) {
-            this.accentSound.currentTime = 0;
-            this.accentSound.play();
-        } else {
-            this.normalSound.currentTime = 0;
-            this.normalSound.play();
+        const noteNumber = noteIndex % this.notesNumber;
+        if (this.metronomeView) this.metronomeView.setNoteIndex(noteNumber);
+        const buffer = (noteNumber == this.noteAccent) ? this.accentBuffer : this.normalBuffer;
+        if (buffer) {
+            const source = this.audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.connect(this.audioContext.destination);
+            source.start(time);
         }
-        this.index++;
-    };
+    }
 
     pause() {
         this.running = false;
-        clearTimeout(this.timerId);
-        this.timerId = null;
+        if (this.schedulerId) clearTimeout(this.schedulerId);
+        this.schedulerId = null;
     }
 
     setBpm(bpm) {
