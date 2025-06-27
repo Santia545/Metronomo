@@ -10,8 +10,8 @@ playBtn.onclick =
             metronome.run();
             $('#start-playing').text("Pause");
         } else {
+            metronome.index=0;
             $('#start-playing').text("Play");
-
         }
     };
 const dropdown = document.getElementById('my-dropdown');

@@ -9,7 +9,10 @@ class Metronome {
     metronomeView = null;
     normalSound = new Audio('resources/metronome_piano.wav');
     accentSound = new Audio('resources/metronome_forte.wav');
-    intervalId=null;
+    intervalId = null;
+    lastSoundTime = null; // For profiling
+    HighestTime = 0; // For profiling
+    LowestTime = 0; // For profiling
     isRunning() {
         return this.running;
     }
@@ -31,18 +34,44 @@ class Metronome {
     }
     run() {
         this.running = true;
-        this.intervalId = setInterval(() => {
-            if (this.running) {
-                this.playSound();
-            } else {
-                clearInterval(this.intervalId);
-                this.intervalId=null;
-            }
-        }, this.time);
+        this.index = 0;
+        this.nextTick = performance.now();
+        this.tick();
     }
+    tick = () => {
+        if (!this.running) return;
+
+        const now = performance.now();
+        if (now >= this.nextTick) {
+            this.playSound(); 
+            this.nextTick += this.time;
+
+            // Ajute por retraso
+            if (now > this.nextTick + this.time) {
+                this.nextTick = now + this.time;
+            }
+        }
+        this.timerId = setTimeout(this.tick, 1); 
+    };
 
     playSound() {
-        console.log("Time " + performance.now());
+        const now = performance.now();
+        // Profiling: measure time between sounds
+        if (this.lastSoundTime !== null) {
+            if (now - this.lastSoundTime > this.HighestTime) {
+                this.HighestTime = now - this.lastSoundTime;
+                console.log(`New highest time: ${this.HighestTime.toFixed(2)} ms`);
+            }
+            if (this.LowestTime === 0 || now - this.lastSoundTime < this.LowestTime) {
+                this.LowestTime = now - this.lastSoundTime;
+                console.log(`New lowest time: ${this.LowestTime.toFixed(2)} ms`);
+            }
+            const interval = now - this.lastSoundTime;
+            console.log(`Interval since last sound: ${interval.toFixed(2)} ms`);
+        }
+        this.lastSoundTime = now;
+
+        console.log("Time " + now);
         const noteNumber = this.index % this.notesNumber;
         metronomeView.setNoteIndex(noteNumber);
         if (noteNumber == this.noteAccent) {
@@ -57,7 +86,8 @@ class Metronome {
 
     pause() {
         this.running = false;
-        this.intervalId = null;
+        clearTimeout(this.timerId);
+        this.timerId = null;
     }
 
     setBpm(bpm) {
