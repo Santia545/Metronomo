@@ -19,7 +19,9 @@ class MetronomeView {
         }
     }
     setNoteIndex(index) {
-        $(".circular-beat-active").toggleClass("circular-beat-active");
-        $(`#${index}`).toggleClass("circular-beat-active");
+        window.requestAnimationFrame(() => {
+            $(".circular-beat-active").toggleClass("circular-beat-active");
+            $(`#${index}`).toggleClass("circular-beat-active");
+        });
     }
 }
