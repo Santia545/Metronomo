@@ -37,8 +37,11 @@ body {
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    width: 100%;
     margin-top: 5vh;
     margin-bottom: 5vh;
+    gap: 1vw;
+    --beat-size: 60px; /* Default, will be overridden by JS */
 }
 
 
@@ -86,65 +89,39 @@ body {
 
 @media (max-width: 480px) {
     .circular-beat {
-        margin: 0.5vh 0.1vw;
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background-color: white;
-        color: black;
-        text-align: center;
-        line-height: 20px;
-        font-size: 0.85em;
-        font-weight: bold;
-        text-decoration: none;
-        border: 3px solid black;
-        /* added border property */
-        outline: none;
+        font-size: calc(var(--beat-size) * 0.6);
     }
-
 }
 
 @media (min-width: 481px) and (max-width: 767px) {
     .circular-beat {
-        margin: 0.5vh 0.5vw;
-        display: inline-block;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: white;
-        color: black;
-        text-align: center;
-        line-height: 40px;
-        font-size: 1.2em;
-        font-weight: bold;
-        text-decoration: none;
-        border: 3px solid black;
-        /* added border property */
-        outline: none;
+        font-size: calc(var(--beat-size) * 0.5);
     }
-
 }
 
 @media (min-width: 768px) {
     .circular-beat {
-        margin: 0.5vh 0.8vw;
-        display: inline-block;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background-color: white;
-        color: black;
-        text-align: center;
-        line-height: 60px;
-        font-size: 1.2em;
-        font-weight: bold;
-        text-decoration: none;
-        border: 3px solid black;
-        /* added border property */
-        outline: none;
+        font-size: calc(var(--beat-size) * 0.5);
     }
+}
 
+.circular-beat {
+    width: var(--beat-size);
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: white;
+    color: black;
+    text-align: center;
+    font-size: calc(var(--beat-size) * 0.5);
+    font-weight: bold;
+    text-decoration: none;
+    border: 3px solid black;
+    outline: none;
+    margin: 0;
+    transition: width 0.2s, height 0.2s, font-size 0.2s;
 }
 
 .circular-beat-active {
@@ -250,3 +227,11 @@ label {
     font-size: 14px;
     color: #555;
   }
+
+  @media (max-width: 600px) {
+    #time-signatures {
+        flex-direction: column;
+        gap: 1em;
+        align-items: stretch;
+    }
+}

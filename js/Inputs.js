@@ -8,7 +8,7 @@ playBtn.onclick =
         metronome.running = !metronome.running;
         if (metronome.isRunning()) {
             metronome.run();
-            $('#start-playing').text("Pause");
+            $('#start-playing').text("Stop");
         } else {
             metronome.index=0;
             $('#start-playing').text("Play");
