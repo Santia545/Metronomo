@@ -30,7 +30,7 @@ $('#my-switch').change(function () {
         metronome.setNoteAccent(0);
         console.log("Switch is on");
     } else {
-        metronome.setNoteAccent(-2);
+        metronome.setNoteAccent(-1);
         console.log("Switch is off");
     }
 });

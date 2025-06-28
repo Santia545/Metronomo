@@ -82,13 +82,16 @@ class Metronome {
         this.lastScheduledTime = time;
 
         const noteNumber = noteIndex % this.notesNumber;
-        if (this.metronomeView) this.metronomeView.setNoteIndex(noteNumber);
         const buffer = (noteNumber == this.noteAccent) ? this.accentBuffer : this.normalBuffer;
         if (buffer) {
             const source = this.audioContext.createBufferSource();
             source.buffer = buffer;
             source.connect(this.audioContext.destination);
             source.start(time);
+            source.onended = () => {
+                if (this.metronomeView) this.metronomeView.setNoteIndex(noteNumber);
+            }
+
         }
     }
 
